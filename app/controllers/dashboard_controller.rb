@@ -22,40 +22,68 @@ class DashboardController < ApplicationController
       FROM users JOIN addresses ON (users.id=user_id) 
       JOIN cities ON (city_id=cities.id) 
       GROUP BY cities.name ORDER BY COUNT(cities.name) desc LIMIT 3")
+
+    @most_spent_one_order = User.find_by_sql ["SELECT users.first_name, orders.id, (order_contents.quantity*products.price) AS total 
+      FROM users JOIN orders ON (users.id=user_id) 
+      JOIN order_contents ON (orders.id=order_id) 
+      JOIN products ON (product_id=products.id)
+      GROUP BY total, users.first_name, orders.id
+      ORDER BY total desc LIMIT 3"]
+
+    @most_spent_lifetime = User.find_by_sql ["SELECT users.first_name, orders.id, SUM((order_contents.quantity*products.price)) AS total 
+      FROM users JOIN orders ON (users.id=user_id) 
+      JOIN order_contents ON (orders.id=order_id) 
+      JOIN products ON (product_id=products.id)
+      GROUP BY users.first_name, orders.id
+      ORDER BY total desc"]
+
+    @highest_avg_order_price = User.find_by_sql ["SELECT users.first_name, orders.id, AVG((order_contents.quantity*products.price)) AS total 
+      FROM users JOIN orders ON (users.id=user_id) 
+      JOIN order_contents ON (orders.id=order_id) 
+      JOIN products ON (product_id=products.id)
+      GROUP BY users.first_name, orders.id
+      ORDER BY total desc"]
+
+    @most_lifetime_orders = User.find_by_sql ["SELECT users.first_name, COUNT(orders.id) AS TotalOrders
+      FROM users JOIN orders ON (users.id=user_id) 
+      JOIN order_contents ON (orders.id=order_id)
+      GROUP BY users.first_name
+      ORDER BY TotalOrders desc"] 
+
   end
 
 end
 
 #User that has spent the most in one order
-User.find_by_sql ("SELECT users.first_name, orders.id, (order_contents.quantity*products.price) AS total 
-  FROM users JOIN orders ON (users.id=user_id) 
-  JOIN order_contents ON (orders.id=order_id) 
-  JOIN products ON (product_id=products.id)
-  GROUP BY total, users.first_name, orders.id
-  ORDER BY total desc")
+# User.find_by_sql ("SELECT users.first_name, orders.id, (order_contents.quantity*products.price) AS total 
+#   FROM users JOIN orders ON (users.id=user_id) 
+#   JOIN order_contents ON (orders.id=order_id) 
+#   JOIN products ON (product_id=products.id)
+#   GROUP BY total, users.first_name, orders.id
+#   ORDER BY total desc")
 
-# life-time value HOLY FUCK THAT TOOK LONG
-User.find_by_sql ("SELECT users.first_name, orders.id, SUM((order_contents.quantity*products.price)) AS total 
-  FROM users JOIN orders ON (users.id=user_id) 
-  JOIN order_contents ON (orders.id=order_id) 
-  JOIN products ON (product_id=products.id)
-  GROUP BY users.first_name, orders.id
-  ORDER BY total desc")
+# life-time value omg that took long
+# User.find_by_sql ("SELECT users.first_name, orders.id, SUM((order_contents.quantity*products.price)) AS total 
+#   FROM users JOIN orders ON (users.id=user_id) 
+#   JOIN order_contents ON (orders.id=order_id) 
+#   JOIN products ON (product_id=products.id)
+#   GROUP BY users.first_name, orders.id
+#   ORDER BY total desc")
 
 #User that has the highest average order 
-User.find_by_sql ("SELECT users.first_name, orders.id, AVG((order_contents.quantity*products.price)) AS total 
-  FROM users JOIN orders ON (users.id=user_id) 
-  JOIN order_contents ON (orders.id=order_id) 
-  JOIN products ON (product_id=products.id)
-  GROUP BY users.first_name, orders.id
-  ORDER BY total desc")
+# User.find_by_sql ("SELECT users.first_name, orders.id, AVG((order_contents.quantity*products.price)) AS total 
+#   FROM users JOIN orders ON (users.id=user_id) 
+#   JOIN order_contents ON (orders.id=order_id) 
+#   JOIN products ON (product_id=products.id)
+#   GROUP BY users.first_name, orders.id
+#   ORDER BY total desc")
 
 #User that has the most orders placed in their life-time
-User.find_by_sql ("SELECT users.first_name, COUNT(orders.id) AS TotalOrders
-  FROM users JOIN orders ON (users.id=user_id) 
-  JOIN order_contents ON (orders.id=order_id)
-  GROUP BY users.first_name
-  ORDER BY users.first_name") 
+# User.find_by_sql ("SELECT users.first_name, COUNT(orders.id) AS TotalOrders
+#   FROM users JOIN orders ON (users.id=user_id) 
+#   JOIN order_contents ON (orders.id=order_id)
+#   GROUP BY users.first_name
+#   ORDER BY TotalOrders desc") 
 
 
 
